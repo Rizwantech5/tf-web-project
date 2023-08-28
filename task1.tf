@@ -4,26 +4,34 @@ provider "aws" {
 
 # *************************************************************
 # Define an AWS security group
-# resource "aws_security_group" "example" {
-#   name        = "launch-wizard-2"
-#   description = "launch-wizard-2 created 2023-08-28T06:34:59.693Z"
-  
-#   // Define your security group rules here
-#   // For example, allow incoming HTTP and SSH traffic
-#   ingress {
-#     from_port   = 80
-#     to_port     = 80
-#     protocol    = "tcp"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-  
-#   ingress {
-#     from_port   = 22
-#     to_port     = 22
-#     protocol    = "tcp"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-# }
+resource "aws_security_group" "allow_http_ssh" {
+  name        = "allow_http"
+  description = "Allow http inbound traffic"
+ingress {
+    description = "http"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+ 
+  }
+ingress {
+    description = "ssh"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+   }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+tags = {
+    Name = "allow_http_ssh"
+  }
+}
 # ************************************************************
 
 # Define an AWS EC2 instance
@@ -31,7 +39,7 @@ resource "aws_instance" "web" {
   ami           = "ami-06f621d90fa29f6d0" # Specify the AMI ID
   instance_type = "t2.micro"
   key_name = "27_firstkey" # Specify the key pair
-  security_groups = ["launch-wizard-1"] # Associate security groups
+  security_groups = ["allow_http"] # Associate security groups
 
   connection {
     type        = "ssh"
